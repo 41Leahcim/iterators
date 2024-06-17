@@ -8,4 +8,4 @@ default = []
 alloc = []
 
 [dependencies]
-rayon = "1.7.0"
+rayon = "1"

@@ -4,7 +4,7 @@ use iterators::{
     numeric_sequences::{Catalan, Factorial, Fibonacci},
     range::{Range, RangeUsize},
 };
-use std::{hint::black_box, time::Instant};
+use std::{hint::black_box, thread, time::Instant};
 
 const CYCLES: usize = 1_000_000_000;
 
@@ -17,14 +17,16 @@ fn test_iterator(iter: impl Iterator, name: &str) {
 }
 
 fn main() {
-    test_iterator(Range::new(0, CYCLES, 1), "Range");
-    test_iterator(Range::from(0..CYCLES + 1), "Range from std Range");
-    test_iterator(Range::from(0..=CYCLES), "Range from std RangeInclusive");
-    test_iterator(RangeUsize::<0, CYCLES, 1>::default(), "RangeUsize");
-    test_iterator(0..=CYCLES, "Std RangeInclusive");
-    test_iterator(Fibonacci::default().cycle().take(CYCLES), "Fibonacci");
-    test_iterator(Factorial::default().take(CYCLES), "Factorial");
-    test_iterator(Catalan::default().cycle().take(CYCLES), "Catalan");
-    #[cfg(feature = "alloc")]
-    test_iterator(Primes::default().cycle().take(CYCLES), "Prime generator")
+    thread::scope(|scope| {
+        scope.spawn(|| test_iterator(Range::new(0, CYCLES, 1), "Range"));
+        scope.spawn(|| test_iterator(Range::from(0..CYCLES + 1), "Range from std Range"));
+        scope.spawn(|| test_iterator(Range::from(0..=CYCLES), "Range from std RangeInclusive"));
+        scope.spawn(|| test_iterator(RangeUsize::<0, CYCLES, 1>::default(), "RangeUsize"));
+        scope.spawn(|| test_iterator(0..=CYCLES, "Std RangeInclusive"));
+        scope.spawn(|| test_iterator(Fibonacci::default().cycle().take(CYCLES), "Fibonacci"));
+        scope.spawn(|| test_iterator(Factorial::default().take(CYCLES), "Factorial"));
+        #[cfg(feature = "alloc")]
+        scope.spawn(|| test_iterator(Primes::default().cycle().take(CYCLES), "Prime generator"));
+        test_iterator(Catalan::default().cycle().take(CYCLES), "Catalan");
+    });
 }
