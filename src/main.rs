@@ -2,7 +2,7 @@
 use iterators::numeric_sequences::Primes;
 use iterators::{
     numeric_sequences::{Catalan, Factorial, Fibonacci},
-    range::{Range, RangeUsize},
+    range::Range,
 };
 use std::{hint::black_box, thread, time::Instant};
 
@@ -19,9 +19,18 @@ fn test_iterator(iter: impl Iterator, name: &str) {
 fn main() {
     thread::scope(|scope| {
         scope.spawn(|| test_iterator(Range::new(0, CYCLES, 1), "Range"));
-        scope.spawn(|| test_iterator(Range::from(0..CYCLES + 1), "Range from std Range"));
-        scope.spawn(|| test_iterator(Range::from(0..=CYCLES), "Range from std RangeInclusive"));
-        scope.spawn(|| test_iterator(RangeUsize::<0, CYCLES, 1>::default(), "RangeUsize"));
+        scope.spawn(|| {
+            test_iterator(
+                Range::try_from(0..CYCLES + 1).unwrap(),
+                "Range from std Range",
+            )
+        });
+        scope.spawn(|| {
+            test_iterator(
+                Range::try_from(0..=CYCLES).unwrap(),
+                "Range from std RangeInclusive",
+            )
+        });
         scope.spawn(|| test_iterator(0..=CYCLES, "Std RangeInclusive"));
         scope.spawn(|| test_iterator(Fibonacci::default().cycle().take(CYCLES), "Fibonacci"));
         scope.spawn(|| test_iterator(Factorial::default().take(CYCLES), "Factorial"));

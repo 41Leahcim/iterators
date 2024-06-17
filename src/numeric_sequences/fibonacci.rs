@@ -1,5 +1,5 @@
 /// Fibonacci sequence iterator
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Fibonacci {
     current: Option<u128>,
     next: Option<u128>,
@@ -7,6 +7,7 @@ pub struct Fibonacci {
 
 /// Only constructor, current is the next to return
 impl Default for Fibonacci {
+    #[inline]
     fn default() -> Self {
         Self {
             current: Some(0),
@@ -18,6 +19,7 @@ impl Default for Fibonacci {
 impl Iterator for Fibonacci {
     type Item = u128;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         // If current and next are still within bounds
         if let (Some(current), Some(next)) = (self.current, self.next) {

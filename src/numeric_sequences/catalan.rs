@@ -3,15 +3,17 @@
 pub struct Catalan([u128; 70], usize);
 
 impl Default for Catalan {
+    #[inline]
     fn default() -> Self {
         // Allocate an empty vector
-        Catalan([0; 70], 0)
+        Self([0; 70], 0)
     }
 }
 
 impl Iterator for Catalan {
     type Item = u128;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         // If the vector is empty
         if self.1 == 0 {
@@ -27,10 +29,10 @@ impl Iterator for Catalan {
             let array = &self.0[..self.1];
 
             // Take a normal and a reversed iterator over the Vec
-            for (&a, &b) in array.iter().zip(array.iter().rev()) {
+            for (&left, &right) in array.iter().zip(array.iter().rev()) {
                 // Try to add the product of the current values from the iterators
                 // to the current value
-                if let Some(result) = current.checked_add(a * b) {
+                if let Some(result) = current.checked_add(left * right) {
                     // Set the current value to the result if within bounds
                     current = result;
                 } else {
